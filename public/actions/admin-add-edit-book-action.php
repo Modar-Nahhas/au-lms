@@ -23,22 +23,13 @@ $data['coverImage'] = $_FILES['coverImage'] ?? null;
 try {
     if ($bookId > 0) {
         // UPDATE
-        $bookService->updateBook($bookId, $data);
-
-        echo json_encode([
-            'success' => true,
-            'action' => 'updated',
-            'message' => 'Book updated successfully.'
-        ]);
-        exit;
-
+        $response = $bookService->updateBook($bookId, $data);
     } else {
         // CREATE
         $response = $bookService->createBook($data);
-
-        echo json_encode($response);
-        exit;
     }
+    echo json_encode($response);
+    exit;
 
 } catch (Throwable $e) {
     echo json_encode([

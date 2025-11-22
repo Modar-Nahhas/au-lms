@@ -13,7 +13,7 @@
             </div>
             
             <div class="modal-body">
-                <input type="hidden" id="book-id">
+                <input type="hidden" id="book-id" name="id">
                 
                 <div class="form-group">
                     <label for="bookISBN">ISBN</label>
@@ -81,8 +81,8 @@
                 </div>
                 
                 <div class="form-group description-group">
-                    <label for="description">Descriptions</label>
-                    <textarea id="description" class="form-control" name="description" rows="3"></textarea>
+                    <label for="bookDescription">Descriptions</label>
+                    <textarea id="bookDescription" class="form-control" name="description" rows="3"></textarea>
                     <div class="invalid-feedback d-none"></div>
                 </div>
                 
@@ -106,7 +106,7 @@
                     
                     <div class="mt-3 d-none" id="coverPreviewWrapper">
                         <img id="coverPreview"
-                             src="/assets/img/default_book.png"
+                             src=""
                              alt="Cover preview"
                              class="img-thumbnail cover-preview">
                     </div>

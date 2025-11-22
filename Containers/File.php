@@ -73,4 +73,29 @@ abstract class File
         return $filename;
     }
 
+    public static function deleteImage(?string $filename, ?string $targetDirectory = null): bool
+    {
+        // Prevent deletion of default image
+        if ($filename === Env::getValue('DEFAULT_BOOK_IMAGE')) {
+            return true;
+        }
+        if ($targetDirectory === null) {
+            $targetDirectory = DIRECTORY_SEPARATOR . Env::getValue('FILES_PATH');
+        }
+        // No filename? Nothing to delete.
+        if (empty($filename)) {
+            return false;
+        }
+
+        // Full path to image folder (adjust if needed)
+        $path = __DIR__ . "/../" . rtrim($targetDirectory, '/') . '/' . $filename;
+
+        // Check file exists and is a real file
+        if (file_exists($path) && is_file($path)) {
+            return unlink($path);
+        }
+
+        return false;
+    }
+
 }

@@ -306,7 +306,8 @@ class Book extends BaseModel
         $table = static::$table;
 
         $sql = "UPDATE $table
-                SET isbn = ?, title = ?, author = ?, publisher = ?, language = ?, category = ?, cover_image = ?
+                SET isbn = ?, title = ?, author = ?, publisher = ?, language = ?, category = ?, description = ?, cover_image = ?
+                
                 WHERE id = ? AND deleted_at IS NULL";
 
         /** @var \PDOStatement $stmt */
@@ -319,6 +320,7 @@ class Book extends BaseModel
             $this->publisher,
             $this->language,
             $this->category,
+            $this->description,
             $this->coverImage,
             $this->id,
         ]);

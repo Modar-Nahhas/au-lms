@@ -116,6 +116,9 @@ readonly class BookService
      */
     public function createBook(array $data): array
     {
+        if (!Authorize::isAdmin()) {
+            Route::redirect('index.php');
+        }
         list($isbn, $title, $author, $publisher, $language, $category, $coverImage, $errors) = $this->validateInput($data);
 
         // If any validation errors → return them
@@ -154,24 +157,86 @@ readonly class BookService
         }
     }
 
-    public function updateBook(int $id, array $data): bool
+    public function updateBook(int $id, array $data): array
     {
-        $table = Book::$table;
+        if (!Authorize::isAdmin()) {
+            Route::redirect('index.php');
+        }
+        // Validate ID first
+        if ($id <= 0) {
+            return [
+                'success' => false,
+                'errors' => ['id' => 'Invalid book ID.'],
+            ];
+        }
 
-        $sql = "UPDATE $table
-            SET title = :title,
-                author = :author,
-                publisher = :publisher,
-                language = :language,
-                category = :category,
-                status = :status
-            WHERE id = :id";
+        // Validate the input (same logic as createBook)
+        list($isbn, $title, $author, $publisher, $language, $category, $coverImage, $errors) =
+            $this->validateInput($data);
 
-        $data['id'] = $id;
+        // If validation failed → return errors
+        if (!empty($errors)) {
+            return [
+                'success' => false,
+                'errors' => $errors,
+            ];
+        }
 
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute($data);
+        // Load existing book to preserve existing cover if none uploaded
+        $existingBook = Book::find($id, true);
+        if (!$existingBook) {
+            return [
+                'success' => false,
+                'errors' => ['id' => 'Book not found.'],
+            ];
+        }
+
+        try {
+            // Keep existing cover unless a new one is provided
+            $imageName = $existingBook->coverImage ?? null;
+
+            if ($coverImage && $coverImage['error'] !== UPLOAD_ERR_NO_FILE) {
+                // Optionally delete old cover here if needed
+                File::deleteImage($imageName);
+
+                $imageName = File::saveUploadedImage($coverImage);
+            }
+
+            // Description: use new one if provided, otherwise keep old
+            $description = $data['description'] ?? $existingBook->description ?? null;
+
+
+            // Perform update
+            $existingBook->isbn = $isbn;
+            $existingBook->title = $title;
+            $existingBook->author = $author;
+            $existingBook->publisher = $publisher;
+            $existingBook->language = $language;
+            $existingBook->category = $category;
+            $existingBook->description = $description;
+            $existingBook->coverImage = $imageName;
+
+            // Save to DB via instance method
+            $saved = $existingBook->save();
+            if (!$saved) {
+                return [
+                    'success' => false,
+                    'errors' => ['general' => 'Error saving book.'],
+                ];
+            }
+            return [
+                'success' => true,
+                'book' => $existingBook,
+            ];
+
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'errors' => ['coverImage' => $e->getMessage()],
+            ];
+        }
     }
+
 
     /**
      * @param array $data

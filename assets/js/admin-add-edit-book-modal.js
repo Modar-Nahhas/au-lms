@@ -7,9 +7,10 @@ function clearValidationStatusForAddEditBookModal() {
     const pub = document.getElementById("bookPublisher");
     const lang = document.getElementById("bookLanguage");
     const cat = document.getElementById("bookCategory");
+    const description = document.getElementById("descriptionInput");
 
-    [isbn, title, author, pub, lang, cat].forEach(i => i && clearInvalid(i));
-    return {isbn, title, author, pub, lang, cat};
+    [isbn, title, author, pub, lang, cat, description].forEach(i => i && clearInvalid(i));
+    return {isbn, title, author, pub, lang, cat, description};
 }
 
 function isValidISBN(isbn) {
@@ -38,7 +39,15 @@ function isValidISBN(isbn) {
 
 function validateBookForm() {
     let valid = true;
-    const {isbn, title, author, pub, lang, cat} = clearValidationStatusForAddEditBookModal();
+    const {
+        isbn,
+        title,
+        author,
+        pub,
+        lang,
+        cat,
+        description
+    } = clearValidationStatusForAddEditBookModal();
 
     // ----- ISBN -----
     let isbnValue = isbn.value.trim();
@@ -86,18 +95,12 @@ function validateBookForm() {
     if (!langValue) {
         setInvalid(lang, "Please select a language.");
         valid = false;
-    } else if (!LANG.includes(langValue)) {
-        setInvalid(lang, "Invalid language selected.");
-        valid = false;
     }
 
     // ----- CATEGORY -----
     let catValue = cat.value.trim();
     if (!catValue) {
         setInvalid(cat, "Please select a category.");
-        valid = false;
-    } else if (!CAT.includes(catValue)) {
-        setInvalid(cat, "Invalid category selected.");
         valid = false;
     }
 
@@ -116,11 +119,24 @@ function getFormInputsHtmlElements() {
     const catSelect = document.getElementById("bookCategory");
     const langSelect = document.getElementById("bookLanguage");
     const statusSelect = document.getElementById("bookStatus");
+    const descriptionInput = document.getElementById("bookDescription");
     const label = document.getElementById("bookModalLabel");
-    return {idInput, isbnInput, titleInput, authorInput, pubInput, catSelect, langSelect, statusSelect, label};
+    return {
+        idInput,
+        isbnInput,
+        titleInput,
+        authorInput,
+        pubInput,
+        catSelect,
+        langSelect,
+        statusSelect,
+        descriptionInput,
+        label
+    };
 }
 
 function openAddBookModal() {
+    removeBookImage();
     isEditing = false;
 
     const {
@@ -132,6 +148,7 @@ function openAddBookModal() {
         catSelect,
         langSelect,
         statusSelect,
+        descriptionInput,
         label
     } = getFormInputsHtmlElements();
 
@@ -143,6 +160,7 @@ function openAddBookModal() {
     if (pubInput) pubInput.value = "";
     if (catSelect) catSelect.value = "";
     if (langSelect) langSelect.value = "";
+    if (descriptionInput) descriptionInput.value = "";
     if (statusSelect) statusSelect.value = "Available";
 
     clearValidationStatusForAddEditBookModal();
@@ -162,6 +180,7 @@ function openEditBookModal(book) {
         catSelect,
         langSelect,
         statusSelect,
+        descriptionInput,
         label
     } = getFormInputsHtmlElements();
 
@@ -173,7 +192,10 @@ function openEditBookModal(book) {
     if (pubInput) pubInput.value = book.publisher || "";
     if (catSelect) catSelect.value = book.category || "";
     if (langSelect) langSelect.value = book.language || "";
+    if (descriptionInput) descriptionInput.value = book.description || "";
     if (statusSelect) statusSelect.value = book.status || "Available";
+
+    displayBookImage(book);
 
     clearValidationStatusForAddEditBookModal();
 
@@ -235,20 +257,8 @@ function submitBookAddEditFormHandler() {
 function addOpenAddModalEventHandler() {
     const addBtn = document.getElementById("btn-add-book");
     if (!addBtn) return;
-
     addBtn.addEventListener("click", openAddBookModal);
 }
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    addOpenAddModalEventHandler();
-    submitBookAddEditFormHandler();
-
-    //Book cover preview
-    previewCoverImage();
-
-
-});
 
 
 // ============================================================
@@ -284,7 +294,21 @@ function clearErrors() {
     });
 }
 
-function previewCoverImage() {
+function displayBookImage(book) {
+    const previewWrapper = document.getElementById('coverPreviewWrapper');
+    const previewImg = document.getElementById('coverPreview');
+    previewImg.src = '/assets/img/' + book.coverImage;
+    previewWrapper.classList.remove('d-none');
+}
+
+function removeBookImage() {
+    const previewWrapper = document.getElementById('coverPreviewWrapper');
+    const previewImg = document.getElementById('coverPreview');
+    previewImg.src = '';
+    previewWrapper.classList.add('d-none');
+}
+
+function previewUploadedCoverImage() {
     const fileInput = document.getElementById('bookCover');
     const label = document.querySelector('label.custom-file-label[for="bookCover"]');
     const previewWrapper = document.getElementById('coverPreviewWrapper');
@@ -315,5 +339,10 @@ function previewCoverImage() {
     });
 }
 
-
+document.addEventListener("DOMContentLoaded", function () {
+    addOpenAddModalEventHandler();
+    submitBookAddEditFormHandler();
+    //Book cover preview
+    previewUploadedCoverImage();
+});
 
