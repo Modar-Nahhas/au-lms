@@ -1,0 +1,39 @@
+.modal-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+#book-form .form-group {
+    flex: 1 1 45%;
+}
+
+.cover-image-group,.description-group {
+    flex: 1 1 100% !important;
+}
+
+/* Make preview nicely sized */
+.cover-preview {
+    max-width: 140px;
+    max-height: 200px;
+    object-fit: cover;
+}
+
+/* Optional: nicer custom file look */
+.custom-file-input:focus ~ .custom-file-label {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Make the label text truncate nicely */
+.custom-file-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media screen and (max-width: 768px) {
+    #book-form .form-group:not(.cover-image-group) {
+        flex: 1 1 100%;
+    }
+}

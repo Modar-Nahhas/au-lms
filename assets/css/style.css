@@ -1,0 +1,95 @@
+
+:root {
+    --brand: #155499;
+    --brand-2: #0d6efd;
+    --ink: #2b2b2b;
+    --muted: #6c757d;
+    --bg: #f7f9fc;
+    --card: #ffffff;
+    --border: #e3e8ef;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    padding-top: 61px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+body main {
+    flex: 1;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--brand-2) !important;
+}
+
+.btn-primary {
+    background: var(--brand-2);
+    border-color: var(--brand-2);
+}
+
+.btn-outline-primary {
+    color: var(--brand-2);
+    border-color: var(--brand-2);
+}
+
+.section {
+    padding: 2rem 0;
+}
+
+.card {
+    border: 1px solid var(--border);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, .06);
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+
+
+.form-control, .form-select {
+    border-color: var(--border);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--brand-2);
+    box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .15);
+}
+
+.invalid-feedback {
+    display: block;
+    font-size: .85rem;
+}
+
+.footer {
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 1rem;
+}
+
+/* Available = green glow */
+.book-available-shadow {
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+}
+
+/* On Loan = orange glow */
+.book-onloan-shadow {
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.5);
+}
+
+/* Deleted = red glow */
+.book-deleted-shadow {
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+    opacity: 0.7;
+    pointer-events: none; /* optional */
+}
+
