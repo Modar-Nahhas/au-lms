@@ -37,7 +37,7 @@ abstract class File
 
         // Check for upload errors
         if ($file['error'] !== UPLOAD_ERR_OK) {
-            throw new Exception("Image upload failed: " . $file['error']);
+            throw new Exception("Image upload failed: check image size" . $file['error']);
         }
 
         // Validate size
