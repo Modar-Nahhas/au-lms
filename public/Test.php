@@ -271,7 +271,7 @@ header('Content-Type: text/html; charset=utf-8');
             echo '<h2 class="test-title">Test 7: Update Book and Save</h2>';
             echo '<div class="test-body">';
             
-            $foundBook->title = 'Great Expectations (Updated)';
+            $foundBook->title = 'Great Expectations Updated';
             $foundBook->category = 'Non-Fiction'; // just to see update in action
             $saved = $foundBook->save();
             
