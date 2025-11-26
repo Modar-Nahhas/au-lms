@@ -39,6 +39,8 @@ $bookService = new BookService();
                 <?= htmlspecialchars($message) ?>
             </div>
         <?php endif; ?>
+        <div id="admin-message" class="alert alert-warning d-none">
+        </div>
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
                 <h1 class="h3 mb-0">Admin Dashboard</h1>
@@ -89,7 +91,8 @@ $bookService = new BookService();
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap4.min.js"></script>
     
-    <script src="/assets/js/BooksApi.js"></script>
+    <!--    Don't change the order of the following scripts-->
+    <script src="/assets/js/api-handlers/BooksApi.js"></script>
     <script src="/assets/js/admin-dashboard.js"></script>
     <script src="/assets/js/admin-add-edit-book-modal.js"></script>
 

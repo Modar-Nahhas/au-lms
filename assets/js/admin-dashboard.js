@@ -1,5 +1,5 @@
-
 let bookTable = null;
+
 function statusBadge(status) {
     let cls = '';
     switch (status) {
@@ -46,7 +46,7 @@ function drawTable() {
                 orderable: false,
                 render: function (data, type, row) {
                     const disabledReturn = row.status !== 'Onloan' ? 'disabled' : '';
-                    const disabledDelete = row.status === 'Deleted' ? 'disabled' : '';
+                    const disabledDelete = row.status === 'Deleted' || row.status === 'Onloan' ? 'disabled' : '';
 
                     return `
                         <div class="d-flex flex-wrap" style="gap:0.1rem;">
@@ -77,7 +77,7 @@ function drawTable() {
     // EDIT
     $('#books-table').on('click', '.btn-edit', async function () {
         const id = $(this).data('id');
-        const book = await getBookDetails(id);
+        const book = await getBookDetailsApi(id);
         openEditBookModal(book);
         if (!book) return;
         return;
@@ -85,21 +85,24 @@ function drawTable() {
     // Return
     $('#books-table').on('click', '.btn-return', async function () {
         const id = $(this).data('id');
-        const book = await getBookDetails(id);
-        if (!book) return;
-        if (book.status === "Borrowed") {
-            // book.status = "Available";
-            // alert(`Book "${book.title}" has been marked as returned.`);
-            // refreshTable();
+        const res = await returnBookApi(id);
+        if (!res) return;
+        if (res.success) {
+            bookTable.ajax.reload(null, false);
         }
         return;
     });
     // Delete
-    $('#books-table').on('click', '.btn-delete', function () {
+    $('#books-table').on('click', '.btn-delete', async function () {
         const id = $(this).data('id');
         if (!confirm("Are you sure you want to delete this book?")) return;
-        // books = books.filter(b => b.id !== id);
-        // refreshTable();
+        const res = await deleteBookApi(id);
+        if (!res) return;
+        if (res.success) {
+            bookTable.ajax.reload(null, false);
+        } else {
+            showAdminMessage(res.message, 'warning')
+        }
         return;
     });
 }

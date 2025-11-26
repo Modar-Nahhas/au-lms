@@ -174,7 +174,7 @@ class BookStatus extends BaseModel
         $table = static::$table;
 
         $sql = "UPDATE $table
-                SET book_id = ?, member_id = ?, status = ?
+                SET book_id = ?, member_id = ?, status = ?, applied_date = NOW()
                 WHERE id = ?";
 
         /** @var \PDOStatement $stmt */
@@ -186,37 +186,5 @@ class BookStatus extends BaseModel
             $this->status,
             $this->id,
         ]);
-    }
-
-    /**
-     * Delete this status record.
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    public function delete(): bool
-    {
-        self::prepareDatabase();
-        if ($this->id === null) {
-            throw new \Exception("Cannot delete book status without id");
-        }
-
-        return $this->deleteById($this->id);
-    }
-
-    /**
-     * @param int|string $id
-     * @return bool
-     */
-    public function deleteById(int|string $id): bool
-    {
-        self::prepareDatabase();
-        $table = static::$table;
-        $sql = "DELETE FROM $table WHERE id = ?";
-
-        /** @var \PDOStatement $stmt */
-        $stmt = static::$pdo->prepare($sql);
-
-        return $stmt->execute([$id]);
     }
 }

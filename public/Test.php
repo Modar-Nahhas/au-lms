@@ -353,7 +353,7 @@ header('Content-Type: text/html; charset=utf-8');
             echo '<div class="test-body">';
             
             // Request first page with limit 5
-            $result = Book::all(5, 1);
+            $result = Book::all([], 5, 1);
             
             $books = $result['data'] ?? [];
             $total = $result['total'] ?? 0;
@@ -419,7 +419,7 @@ header('Content-Type: text/html; charset=utf-8');
         echo '<div class="test-body">';
         
         // Request first page with limit 50
-        $result = Book::all(50, 1, true);
+        $result = Book::all([], 50, 1, true);
         
         $books = $result['data'] ?? [];
         $total = $result['total'] ?? 0;

@@ -238,8 +238,7 @@ function submitBookAddEditFormHandler() {
                 }
 
                 // SUCCESS — Refresh table & close modal
-                // drawTable();
-                bookTable.ajax.reload();
+                bookTable.ajax.reload(null, false);
                 $('#bookModal').modal('hide');
                 form.reset();
             })

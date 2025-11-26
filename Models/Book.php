@@ -133,7 +133,6 @@ class Book extends BaseModel
         $stmt->execute([$id]);
 
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-
         if (!$row) {
             return null;
         }

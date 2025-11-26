@@ -71,28 +71,6 @@ readonly class BookService
         return Book::all($filters, $limit, $page, $withTrashed, $andFiler, $exactMatch);
     }
 
-    public function borrowBook(string|int $bookId): void
-    {
-        $userId = Auth::id();
-        if (!$userId) {
-            Route::redirect('/book-details.php?id=' . $bookId, 'User need to be signed in', MessageTypeEnum::Warning);
-        }
-        // 1) Load the book
-        $book = Book::find($bookId, false);
-        if (!$book) {
-            throw new \RuntimeException('Book not found.');
-        }
-
-        if ($book->bookStatus->status !== BookStatusEnum::Available->value) {
-            throw new \RuntimeException('Book is not available.');
-        }
-
-        // 2) Create a new book status record
-        $this->bookStatusService->create(BookStatusEnum::OnLoan, $bookId, $userId);
-        Route::redirect('/book-details.php?id=' . $bookId, 'Book borrowed successfully.', MessageTypeEnum::Success);
-
-    }
-
 
     /**
      * Validate data and create a new Book.
@@ -192,6 +170,8 @@ readonly class BookService
         }
 
         try {
+            $currentBookStatus = $existingBook->bookStatus->status;
+
             // Keep existing cover unless a new one is provided
             $imageName = $existingBook->coverImage ?? null;
 
@@ -218,6 +198,7 @@ readonly class BookService
 
             // Save to DB via instance method
             $saved = $existingBook->save();
+
             if (!$saved) {
                 return [
                     'success' => false,
@@ -237,6 +218,84 @@ readonly class BookService
         }
     }
 
+    public function borrowBook(string|int $bookId): void
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            Route::redirect('/book-details.php?id=' . $bookId, 'User need to be signed in', MessageTypeEnum::Warning);
+        }
+
+        $book = Book::find($bookId, false);
+        if (!$book) {
+            throw new \RuntimeException('Book not found.');
+        }
+
+        if ($book->bookStatus->status !== BookStatusEnum::Available->value) {
+            throw new \RuntimeException('Book is not available.');
+        }
+
+        $currentBookStatus = $book->bookStatus;
+        $this->bookStatusService->updateStatus($currentBookStatus->id, BookStatusEnum::OnLoan, $userId);
+        Route::redirect('/book-details.php?id=' . $bookId, 'Book borrowed successfully.', MessageTypeEnum::Success);
+
+    }
+
+    public function returnBook(string|int $bookId): array
+    {
+        if (!Authorize::isAdmin()) {
+            Route::redirectBack('You are not authorized to return a book.');;
+        }
+
+        $book = Book::find($bookId, false);
+        if (!$book) {
+            throw new \RuntimeException('Book not found.');
+        }
+
+        $this->bookStatusService->create(BookStatusEnum::Available, $bookId, null);
+        $acceptHeader = $_SERVER['HTTP_ACCEPT'] ?? '';
+        if ($acceptHeader !== 'application/json') {
+            Route::redirectBack('Book returned successfully.', MessageTypeEnum::Success);
+        }
+        return [
+            'success' => true,
+            'message' => ''
+        ];
+    }
+
+    public function deleteBook(int $id): array
+    {
+        if (!Authorize::isAdmin()) {
+            Route::redirectBack('You are not authorized to delete a book.');;
+        }
+        $book = Book::find($id);
+
+        if (!$book) {
+            throw new \RuntimeException('Book not found.');
+        }
+        $currentBookStatus = $book->bookStatus;
+        if ($currentBookStatus->status == BookStatusEnum::OnLoan->value) {
+            return [
+                'success' => false,
+                'message' => "Can't delete book, it is on loan"
+            ];
+        }
+        //Need a database transaction here, not implemented for simplicity
+        $bookDeleted = $book->delete();
+        if (!$bookDeleted) {
+            throw new \RuntimeException('Error deleting book.');
+        }
+
+        $this->bookStatusService->updateStatus($currentBookStatus->id, BookStatusEnum::Deleted, null);
+        // End of transaction
+        $acceptHeader = $_SERVER['HTTP_ACCEPT'] ?? '';
+        if ($acceptHeader !== 'application/json') {
+            Route::redirectBack('Book deleted successfully.', MessageTypeEnum::Success);
+        }
+        return [
+            'success' => true,
+            'message' => ''
+        ];
+    }
 
     /**
      * @param array $data
